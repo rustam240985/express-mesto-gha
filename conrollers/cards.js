@@ -26,14 +26,19 @@ const getCards = (req, res) => {
 
 const deleteCard = (req, res) => {
   const { cardId } = req.params;
-
-  Card.findByIdAndRemove(cardId)
-    .then((card) => res.send({ data: card }))
+  Card.findByIdAndRemove({ _id: cardId })
+    .then((card) => {
+      const { createdAt, name, link, owner, likes } = card;
+      return res.send({ createdAt, name, link, owner, likes });
+    })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(404).send({ message: 'Карточка с указанным _id не найдена.' });
+        return res.status(400).send({ message: 'Переданы некорректный _id карточки' });
       }
-      return res.status(500).send({ message: err.message });
+      if (err.name === 'TypeError') {
+        return res.status(404).send({ message: 'Передан несуществующий _id карточки' });
+      }
+      return res.status(500).send({ message: err.name });
     });
 };
 
@@ -48,16 +53,14 @@ const likeCard = (req, res) => {
   )
     .populate('likes')
     .then((card) => {
-      if (!_id) {
-        return Promise.reject(new Error('Переданы некорректные данные для постановки лайка.'));
-      }
-      return res.send({ likes: card.likes });
+      const { likes } = card;
+      return res.send({ likes });
     })
     .catch((err) => {
-      if (err.name === 'Error') {
-        return res.status(400).send({ message: err.message });
-      }
       if (err.name === 'CastError') {
+        return res.status(400).send({ message: 'Переданы некорректные данные для постановки лайка.' });
+      }
+      if (err.name === 'TypeError') {
         return res.status(404).send({ message: 'Передан несуществующий _id карточки' });
       }
       return res.status(500).send({ message: err.message });
@@ -73,16 +76,14 @@ const dislikeCard = (req, res) => {
     { new: true, runValidators: true },
   )
     .then((card) => {
-      if (!_id) {
-        return Promise.reject(new Error('Переданы некорректные данные для снятия лайка.'));
-      }
-      return res.send({ likes: card.likes });
+      const { likes } = card;
+      return res.send({ likes });
     })
     .catch((err) => {
-      if (err.name === 'Error') {
-        return res.status(404).send({ message: err.message });
-      }
       if (err.name === 'CastError') {
+        return res.status(400).send({ message: 'Переданы некорректные данные для снятия лайка.' });
+      }
+      if (err.name === 'TypeError') {
         return res.status(404).send({ message: 'Передан несуществующий _id карточки' });
       }
       return res.status(500).send({ message: err.message });
