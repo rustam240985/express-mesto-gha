@@ -22,13 +22,13 @@ const getUsers = (req, res) => {
 const getUser = (req, res) => {
   const { userId } = req.params;
 
-  User.findById(userId)
+  User.findById({ _id: userId })
     .then((user) => {
       const { name, about, avatar, _id } = user;
       res.send({ name, about, avatar, _id });
     })
     .catch((err) => {
-      if (err.name === 'CastError') return res.status(500).send({ message: 'Пользователь по указанному _id не найден.' });
+      if (err.name === 'CastError') return res.status(400).send({ message: 'Пользователь по указанному _id не найден.' });
       return res.status(500).send({ message: err.message });
     });
 };
