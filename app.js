@@ -1,7 +1,12 @@
 const express = require('express');
+const process = require('process');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const router = require('./routes');
+
+process.on('uncaughtException', (err, origin) => {
+  console.log(`${origin} ${err.name} c текстом ${err.message} не была обработана. Обратите внимание!`);
+});
 
 const app = express();
 

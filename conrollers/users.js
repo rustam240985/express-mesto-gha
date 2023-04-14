@@ -1,4 +1,9 @@
+const { ERROR_DEFAULT_CODE, ERROR_NULL_CODE, ERROR_VALIDATE_CODE } = require('../utils/constants');
+
 const User = require('../models/user');
+
+const errorDataNull = new Error('Переданы некорректные данные _id');
+errorDataNull.name = 'NullError';
 
 const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
@@ -8,15 +13,15 @@ const createUser = (req, res) => {
       res.send(newUser);
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') return res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' });
-      return res.status(500).send({ message: err.message });
+      if (err.name === 'ValidationError') return res.status(ERROR_VALIDATE_CODE).send({ message: 'Переданы некорректные данные при создании пользователя' });
+      return res.status(ERROR_DEFAULT_CODE).send({ message: err.message });
     });
 };
 
 const getUsers = (req, res) => {
   User.find({})
-    .then((users) => res.send({ data: users }))
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .then((users) => res.send({ users }))
+    .catch((err) => res.status(ERROR_DEFAULT_CODE).send({ message: err.message }));
 };
 
 const getUser = (req, res) => {
@@ -24,13 +29,16 @@ const getUser = (req, res) => {
 
   User.findById({ _id: userId })
     .then((user) => {
+      if (!user) {
+        return Promise.reject(errorDataNull);
+      }
       const { name, about, avatar, _id } = user;
-      res.send({ name, about, avatar, _id });
+      return res.send({ name, about, avatar, _id });
     })
     .catch((err) => {
-      if (err.name === 'CastError') return res.status(400).send({ message: 'Пользователь по указанному _id не найден.' });
-      if (err.name === 'TypeError') return res.status(404).send({ message: 'Пользователь по указанному _id не найден.' });
-      return res.status(500).send(err.name);
+      if (err.name === 'CastError') return res.status(ERROR_VALIDATE_CODE).send({ message: 'Переданы некорректные данные _id' });
+      if (err.name === 'NullError') return res.status(ERROR_NULL_CODE).send({ message: 'Пользователь по указанному _id не найден.' });
+      return res.status(ERROR_DEFAULT_CODE).send(err.name);
     });
 };
 
@@ -40,13 +48,11 @@ const updateUser = (req, res) => {
 
   User.findByIdAndUpdate(_id, { name, about }, { new: true, runValidators: true })
     .then((user) => {
-      if (!user) return Promise.reject(new Error('Пользователь по указанному _id не найден.'));
-      return res.send({ name: user.name, about: user.about, avatar: user.avatar, _id: user._id });
+      res.send({ name: user.name, about: user.about, avatar: user.avatar, _id: user._id });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') return res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля.' });
-      if (err.name === 'Error') return res.status(404).send({ message: err.message });
-      return res.status(500).send({ message: `Произошла ошибка ${err}` });
+      if (err.name === 'ValidationError') return res.status(ERROR_VALIDATE_CODE).send({ message: 'Переданы некорректные данные при обновлении профиля.' });
+      return res.status(ERROR_DEFAULT_CODE).send({ message: `Произошла ошибка ${err}` });
     });
 };
 
@@ -56,13 +62,11 @@ const updateAvatar = (req, res) => {
 
   User.findByIdAndUpdate(_id, { avatar }, { new: true, runValidators: true })
     .then((user) => {
-      if (!user) return Promise.reject(new Error('Пользователь по указанному _id не найден.'));
-      return res.send({ name: user.name, about: user.about, avatar: user.avatar, _id: user._id });
+      res.send({ name: user.name, about: user.about, avatar: user.avatar, _id: user._id });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') return res.status(400).send({ message: 'Переданы некорректные данные при обновлении аватара' });
-      if (err.name === 'Error') return res.status(404).send({ message: err.message });
-      return res.status(500).send({ message: `Произошла ошибка ${err}` });
+      if (err.name === 'ValidationError') return res.status(ERROR_VALIDATE_CODE).send({ message: 'Переданы некорректные данные при обновлении аватара' });
+      return res.status(ERROR_DEFAULT_CODE).send({ message: `Произошла ошибка ${err}` });
     });
 };
 
