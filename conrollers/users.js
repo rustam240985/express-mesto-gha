@@ -2,7 +2,7 @@ const { ERROR_DEFAULT_CODE, ERROR_NULL_CODE, ERROR_VALIDATE_CODE } = require('..
 
 const User = require('../models/user');
 
-const errorDataNull = new Error('Переданы некорректные данные _id');
+const errorDataNull = new Error('Пользователь по указанному _id не найден.');
 errorDataNull.name = 'NullError';
 
 const createUser = (req, res) => {
@@ -37,7 +37,7 @@ const getUser = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') return res.status(ERROR_VALIDATE_CODE).send({ message: 'Переданы некорректные данные _id' });
-      if (err.name === 'NullError') return res.status(ERROR_NULL_CODE).send({ message: 'Пользователь по указанному _id не найден.' });
+      if (err.name === 'NullError') return res.status(ERROR_NULL_CODE).send({ message: err.message });
       return res.status(ERROR_DEFAULT_CODE).send(err.name);
     });
 };

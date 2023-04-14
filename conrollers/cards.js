@@ -2,7 +2,7 @@ const { ERROR_DEFAULT_CODE, ERROR_NULL_CODE, ERROR_VALIDATE_CODE } = require('..
 
 const Card = require('../models/card');
 
-const errorDataNull = new Error('Переданы некорректные данные _id');
+const errorDataNull = new Error('Карточка по указанному _id не найдена.');
 errorDataNull.name = 'NullError';
 
 const createCard = (req, res) => {
