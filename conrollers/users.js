@@ -14,14 +14,14 @@ const createUser = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') return res.status(ERROR_VALIDATE_CODE).send({ message: 'Переданы некорректные данные при создании пользователя' });
-      return res.status(ERROR_DEFAULT_CODE).send({ message: err.message });
+      return res.status(ERROR_DEFAULT_CODE).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send({ users }))
-    .catch((err) => res.status(ERROR_DEFAULT_CODE).send({ message: err.message }));
+    .catch((err) => res.status(ERROR_DEFAULT_CODE).send({ message: 'На сервере произошла ошибка' }));
 };
 
 const getUser = (req, res) => {
@@ -38,7 +38,7 @@ const getUser = (req, res) => {
     .catch((err) => {
       if (err.name === 'CastError') return res.status(ERROR_VALIDATE_CODE).send({ message: 'Переданы некорректные данные _id' });
       if (err.name === 'NullError') return res.status(ERROR_NULL_CODE).send({ message: err.message });
-      return res.status(ERROR_DEFAULT_CODE).send(err.name);
+      return res.status(ERROR_DEFAULT_CODE).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
@@ -52,7 +52,7 @@ const updateUser = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') return res.status(ERROR_VALIDATE_CODE).send({ message: 'Переданы некорректные данные при обновлении профиля.' });
-      return res.status(ERROR_DEFAULT_CODE).send({ message: `Произошла ошибка ${err}` });
+      return res.status(ERROR_DEFAULT_CODE).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
@@ -66,7 +66,7 @@ const updateAvatar = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') return res.status(ERROR_VALIDATE_CODE).send({ message: 'Переданы некорректные данные при обновлении аватара' });
-      return res.status(ERROR_DEFAULT_CODE).send({ message: `Произошла ошибка ${err}` });
+      return res.status(ERROR_DEFAULT_CODE).send({ message: 'На сервере произошла ошибка' });
     });
 };
 

@@ -17,7 +17,7 @@ const createCard = (req, res) => {
     .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') return res.status(ERROR_VALIDATE_CODE).send({ message: 'Переданы некорректные данные при создании карточки' });
-      return res.status(ERROR_DEFAULT_CODE).send({ message: err.message });
+      return res.status(ERROR_DEFAULT_CODE).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
@@ -26,7 +26,7 @@ const getCards = (req, res) => {
     .populate('likes')
     .populate('owner')
     .then((cards) => res.send(cards))
-    .catch((err) => res.status(ERROR_DEFAULT_CODE).send({ message: err.message }));
+    .catch((err) => res.status(ERROR_DEFAULT_CODE).send({ message: 'На сервере произошла ошибка' }));
 };
 
 const deleteCard = (req, res) => {
@@ -36,8 +36,7 @@ const deleteCard = (req, res) => {
       if (!card) {
         return Promise.reject(errorDataNull);
       }
-      const { createdAt, name, link, owner, likes } = card;
-      return res.send({ createdAt, name, link, owner, likes });
+      return res.send({ message: 'Пост удален' });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -46,7 +45,7 @@ const deleteCard = (req, res) => {
       if (err.name === 'NullError') {
         return res.status(ERROR_NULL_CODE).send({ message: err.message });
       }
-      return res.status(ERROR_DEFAULT_CODE).send({ message: err.message });
+      return res.status(ERROR_DEFAULT_CODE).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
@@ -74,7 +73,7 @@ const likeCard = (req, res) => {
       if (err.name === 'NullError') {
         return res.status(ERROR_NULL_CODE).send({ message: err.message });
       }
-      return res.status(ERROR_DEFAULT_CODE).send({ message: err.message });
+      return res.status(ERROR_DEFAULT_CODE).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
@@ -100,7 +99,7 @@ const dislikeCard = (req, res) => {
       if (err.name === 'NullError') {
         return res.status(ERROR_NULL_CODE).send({ message: err.message });
       }
-      return res.status(ERROR_DEFAULT_CODE).send({ message: err.message });
+      return res.status(ERROR_DEFAULT_CODE).send({ message: 'На сервере произошла ошибка' });
     });
 };
 

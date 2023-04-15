@@ -3,6 +3,7 @@ const process = require('process');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const router = require('./routes');
+const { DB_CONN, PORT } = require('./config');
 
 process.on('uncaughtException', (err, origin) => {
   console.log(`${origin} ${err.name} c текстом ${err.message} не была обработана. Обратите внимание!`);
@@ -22,8 +23,8 @@ app.use((req, res, next) => {
 });
 app.use(router);
 
-mongoose.connect('mongodb://localhost:27017/mestodb');
+mongoose.connect(DB_CONN);
 
-app.listen(3000, () => {
+app.listen(PORT, () => {
   console.log('start server');
 });
