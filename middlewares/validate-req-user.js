@@ -26,12 +26,6 @@ const validateLogin = celebrate({
   }),
 });
 
-const validateToken = celebrate({
-  headers: Joi.object().keys({
-    authorization: Joi.string().required().regex(/Bearer\s\w{1,}/),
-  }).unknown(),
-});
-
 const validateUserId = celebrate({
   params: Joi.object().keys({
     userId: Joi.string().required().hex().length(24),
@@ -49,7 +43,6 @@ module.exports = {
   validateCreateUser,
   validateUpdateAvatar,
   validateLogin,
-  validateToken,
   validateUserId,
   validateUser,
 };

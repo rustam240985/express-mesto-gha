@@ -7,7 +7,7 @@ const router = require('./routes');
 const { createUser, login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const { errorUser } = require('./middlewares/errors');
-const { validateCreateUser, validateLogin, validateToken } = require('./middlewares/validate-req-user');
+const { validateCreateUser, validateLogin } = require('./middlewares/validate-req-user');
 
 process.on('uncaughtException', (err, origin) => {
   console.log(`${origin} ${err.name} c текстом ${err.message} не была обработана. Обратите внимание!`);
@@ -22,7 +22,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.post('/signin', validateLogin, login);
 app.post('/signup', validateCreateUser, createUser);
 
-app.use(validateToken, auth, router);
+app.use(auth, router);
 
 app.use(errors());
 
