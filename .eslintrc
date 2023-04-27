@@ -34,6 +34,12 @@
         "ignoreExpressions": true,
         "max": 10
       }
+    ],
+    "no-param-reassign": [
+      "error",
+      {
+        "props": false
+      }
     ]
   }
 }
