@@ -3,14 +3,27 @@ const bcrypt = require('bcryptjs');
 
 const User = require('../models/user');
 const NotFoundError = require('../errors/not-found-err');
-const { ERROR_VALIDATE_CODE } = require('../utils/constants');
+const ValidationError = require('../errors/validation-error');
+const DuplicateKeyError = require('../errors/duplicate-key-error');
 
 const createUser = (req, res, next) => {
-  const { name, about, avatar, email, password } = req.body;
+  const {
+    name,
+    about,
+    avatar,
+    email,
+    password,
+  } = req.body;
 
   bcrypt.hash(password, 10)
     .then((hash) => User.init()
-      .then(() => User.create({ name, about, avatar, email, password: hash })))
+      .then(() => User.create({
+        name,
+        about,
+        avatar,
+        email,
+        password: hash,
+      })))
     .then((newUser) => {
       res.send({
         _id: newUser._id,
@@ -22,14 +35,12 @@ const createUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        err.statusCode = ERROR_VALIDATE_CODE;
-        err.message = 'Переданы некорректные данные при создании пользователя';
+        next(new ValidationError('Переданы некорректные данные при создании пользователя'));
       } else if (err.code === 11000) {
-        err.statusCode = 409;
-        err.message = 'Пользователь с таким email уже существует';
+        next(new DuplicateKeyError('Пользователь с таким email уже существует'));
+      } else {
+        next(err);
       }
-
-      next(err);
     });
 };
 
@@ -58,16 +69,24 @@ const getUser = (req, res, next) => {
       if (!user) {
         throw new NotFoundError('Пользователь по указанному _id не найден.');
       }
-      const { name, about, avatar, _id } = user;
-      return res.send({ name, about, avatar, _id });
+      const {
+        name,
+        about,
+        avatar, _id,
+      } = user;
+      return res.send({
+        name,
+        about,
+        avatar,
+        _id,
+      });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        err.statusCode = ERROR_VALIDATE_CODE;
-        err.message = 'Передан некорректный _id';
+        next(new ValidationError('Передан некорректный id'));
+      } else {
+        next(err);
       }
-
-      next(err);
     });
 };
 
@@ -79,16 +98,26 @@ const getCurrentUser = (req, res, next) => {
       if (!user) {
         throw new NotFoundError('Пользователь не найден.');
       }
-      const { name, about, avatar, email } = user;
-      return res.send({ _id, name, about, avatar, email });
+      const {
+        name,
+        about,
+        avatar,
+        email,
+      } = user;
+      return res.send({
+        _id,
+        name,
+        about,
+        avatar,
+        email,
+      });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        err.statusCode = ERROR_VALIDATE_CODE;
-        err.message = 'Передан некорректный _id';
+        next(new ValidationError('Передан некорректный id'));
+      } else {
+        next(err);
       }
-
-      next(err);
     });
 };
 
@@ -98,15 +127,19 @@ const updateUser = (req, res, next) => {
 
   User.findByIdAndUpdate(_id, { name, about }, { new: true, runValidators: true })
     .then((user) => {
-      res.send({ name: user.name, about: user.about, avatar: user.avatar, _id: user._id });
+      res.send({
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+        _id: user._id,
+      });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        err.statusCode = ERROR_VALIDATE_CODE;
-        err.message = 'Переданы некорректные данные при обновлении профиля.';
+        next(new ValidationError('Передан некорректные данные при обновлении профиля'));
+      } else {
+        next(err);
       }
-
-      next(err);
     });
 };
 
@@ -116,15 +149,19 @@ const updateAvatar = (req, res, next) => {
 
   User.findByIdAndUpdate(_id, { avatar }, { new: true, runValidators: true })
     .then((user) => {
-      res.send({ name: user.name, about: user.about, avatar: user.avatar, _id: user._id });
+      res.send({
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+        _id: user._id,
+      });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        err.statusCode = ERROR_VALIDATE_CODE;
-        err.message = 'Переданы некорректные данные при обновлении аватара.';
+        next(new ValidationError('Передан некорректные данные при обновлении аватара'));
+      } else {
+        next(err);
       }
-
-      next(err);
     });
 };
 

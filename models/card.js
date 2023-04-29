@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { urlPattern } = require('../utils/constants');
 
 const cardShema = new mongoose.Schema({
   name: {
@@ -11,7 +12,6 @@ const cardShema = new mongoose.Schema({
     type: String,
     validate: {
       validator: (value) => {
-        const urlPattern = /(http|https):\/\/(\w+:{0,1}\w*#)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&amp;%#!\-/]))?/;
         const urlRegExp = new RegExp(urlPattern);
         return value.match(urlRegExp);
       },
@@ -28,7 +28,6 @@ const cardShema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'user',
     default: [],
-    required: true,
   }],
   createdAt: {
     type: Date,

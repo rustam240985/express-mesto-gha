@@ -1,8 +1,7 @@
-const { ERROR_VALIDATE_CODE } = require('../utils/constants');
-
 const Card = require('../models/card');
 const DelCardError = require('../errors/delete-card-err');
 const NotFoundError = require('../errors/not-found-err');
+const ValidationError = require('../errors/validation-error');
 
 const errorDataNull = new Error('Карточка по указанному _id не найдена.');
 errorDataNull.name = 'NullError';
@@ -21,10 +20,10 @@ const createCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        err.message = 'Переданы некорректные данные при создании карточки';
-        err.statusCode = ERROR_VALIDATE_CODE;
+        next(new ValidationError('Передан некорректные данные при создании карточки'));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
@@ -48,16 +47,17 @@ const deleteCard = (req, res, next) => {
       if (card.owner.toString() !== ownerId) {
         throw new DelCardError('Можно удалять только собственные посты');
       }
-      card.deleteOne().then((result) => {
+      card.deleteOne().then(() => {
         res.send({ message: 'Пост удален' });
-      });
+      })
+        .catch(next);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        err.message = 'Переданы некорректный _id карточки';
-        err.statusCode = ERROR_VALIDATE_CODE;
+        next(new ValidationError('Передан некорректный id карточки'));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
@@ -79,10 +79,10 @@ const likeCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        err.message = 'Переданы некорректные данные для постановки лайка.';
-        err.statusCode = ERROR_VALIDATE_CODE;
+        next(new ValidationError('Передан некорректные данные для постановки лайка'));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
@@ -103,10 +103,10 @@ const dislikeCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        err.message = 'Переданы некорректные данные для постановки лайка.';
-        err.statusCode = ERROR_VALIDATE_CODE;
+        next(new ValidationError('Передан некорректные данные для удаления лайка'));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
